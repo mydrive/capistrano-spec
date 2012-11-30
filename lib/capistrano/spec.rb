@@ -17,6 +17,14 @@ module Capistrano
         @runs ||= {}
       end
 
+      def sudo(cmd, options={}, &block)
+        sudos[cmd] = {:options => options, :block => block}
+      end
+
+      def sudos
+        @sudos ||= {}
+      end
+
       def upload(from, to, options={}, &block)
         uploads[from] = {:to => to, :options => options, :block => block}
       end
@@ -24,7 +32,7 @@ module Capistrano
       def uploads
         @uploads ||= {}
       end
-      
+
     end
 
     module Helpers
@@ -158,9 +166,22 @@ module Capistrano
         failure_message_for_should do |actual|
           "expected configuration to run #{cmd}, but did not"
         end
-        
+
       end
 
+      define :have_sudo do |cmd|
+
+        match do |configuration|
+          sudo = configuration.sudos[cmd]
+
+          sudo
+        end
+
+        failure_message_for_should do |actual|
+          "expected configuration to sudo #{cmd}, but did not"
+        end
+
+      end
     end
   end
 end

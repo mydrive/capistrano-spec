@@ -24,7 +24,7 @@ module Capistrano
       def uploads
         @uploads ||= {}
       end
-      
+
     end
 
     module Helpers
@@ -150,18 +150,20 @@ module Capistrano
       define :have_run do |cmd|
 
         match do |configuration|
-          run = configuration.runs[cmd]
-
-          run
+          case cmd
+          when String
+            configuration.runs[cmd].nil?
+          when Regexp
+            configuration.runs.any? { |r| r.first =~ cmd }
+          end
         end
 
         failure_message_for_should do |actual|
           "expected configuration to run #{cmd}, but did not"
         end
-        
+
       end
 
     end
   end
 end
-
